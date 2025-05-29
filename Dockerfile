@@ -30,7 +30,7 @@ RUN useradd -m appuser
 WORKDIR /home/appuser
 
 # Install netcat in runtime image too (for DB wait)
-RUN apt-get update && apt-get install -y netcat && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y build-essential libpq-dev netcat-openbsd
 
 # Copy from build stage
 COPY --from=builder /usr/local /usr/local
