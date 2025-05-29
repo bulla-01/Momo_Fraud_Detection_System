@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile Money Transaction</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-blue-50 min-h-screen flex flex-col">
+
+<!-- Header -->
+<header class="bg-white shadow-md">
+  <div class="max-w-5xl mx-auto flex items-center justify-between px-4 py-2">
+    <img src="./images/bentjunlogo3.jpg" class="h-6" alt="Company Logo">
+    <nav class="flex space-x-4 text-blue-700 font-semibold text-xs">
+      <a href="#" class="hover:text-blue-500">Mobile Money</a>
+      <a href="#" class="hover:text-blue-500">Card Payment</a>
+      <a href="#" class="hover:text-blue-500">Bank Transfer</a>
+      <a href="#" class="hover:text-blue-500">PayPal</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="flex-1 flex items-center justify-center py-4 px-2">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl flex flex-col md:flex-row overflow-hidden relative">
+
+    <!-- Sidebar -->
+    <div class="bg-blue-700 text-white w-full md:w-1/3 p-5 space-y-6 relative">
+      <div class="space-y-5">
+        <!-- DateTime -->
+        <div class="flex items-center space-x-3">
+          <div class="w-6 h-6 bg-white text-blue-700 font-bold rounded-full flex items-center justify-center text-xs">🕒</div>
+          <div>
+            <div class="text-[10px] uppercase opacity-70">Date & Time</div>
+            <div id="currentDateTime" class="font-semibold text-[10px]"></div>
+          </div>
+        </div>
+
+        <!-- Step 2: Initiator Number -->
+        <div class="flex items-center space-x-3">
+          <div class="w-6 h-6 border border-white rounded-full flex items-center justify-center text-xs">2</div>
+          <div>
+            <div class="text-[10px] uppercase opacity-70">Initiator Number</div>
+            <div class="font-semibold text-xs" id="initiatorNumber">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Step 3: Initiator Name -->
+        <div class="flex items-center space-x-3">
+          <div class="w-6 h-6 border border-white rounded-full flex items-center justify-center text-xs">3</div>
+          <div>
+            <div class="text-[10px] uppercase opacity-70">Initiator Name</div>
+            <div class="font-semibold text-xs" id="initiatorName">Loading...</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Form Area -->
+    <div class="w-full md:w-2/3 p-5 flex flex-col justify-between relative">
+      
+      <!-- Balance Top Right -->
+      <div id="balanceAmount" class="absolute top-5 right-5 text-blue-800 font-bold text-xs md:text-sm">
+        Balance: GHS 0.00
+      </div>
+
+      <div>
+        <h2 class="text-lg font-bold text-blue-800 mb-1">Transaction Details</h2>
+        <p class="text-gray-500 text-xs mb-4">Fill in your details to continue the payment.</p>
+
+        <form onsubmit="submitTransaction(event)" method="post" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          
+          <div>
+            <label class="block text-gray-600 mb-1">Beneficiary Number</label>
+            <input type="text" id="beneficiaryphoneno" name="namedest" placeholder="e.g., 0244474327"
+              class="w-full p-2 border rounded-md focus:outline-blue-500 text-sm" required oninput="validateBeneficiaryPhone()">
+          </div>
+
+          <div>
+            <label class="block text-gray-600 mb-1">Payment Type</label>
+            <select name="type" class="w-full p-2 border rounded-md text-sm" required>
+              <option>Transfer</option>
+              <option>Payment</option>
+              <option>Cash In</option>
+              <option>Cash Out</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-gray-600 mb-1">Mobile Network</label>
+            <select name="mobilenetwork" class="w-full p-2 border rounded-md text-sm" required>
+              <option>MTN</option>
+              <option>Vodafone</option>
+              <option>AirtelTigo</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-gray-600 mb-1">Full Name (Beneficiary)</label>
+            <input type="text" id="beneficiaryname" name="beneficiaryname" placeholder="e.g., Frank Sarfo"
+              class="w-full p-2 border rounded-md focus:outline-blue-500 text-sm" readonly>
+          </div>
+
+          <div>
+            <label class="block text-gray-600 mb-1">Transaction Amount (GHS)</label>
+            <input type="number" name="amount" step="0.01" placeholder="e.g., 150.00"
+              class="w-full p-2 border rounded-md focus:outline-blue-500 text-sm" required>
+          </div>
+
+          <div>
+            <label class="block text-gray-600 mb-1">Initiator Phone Number</label>
+            <input type="text" id="initiatorphoneno" name="initiatorphone" placeholder="e.g., 0241234567"
+              class="w-full p-2 border rounded-md focus:outline-blue-500 text-sm" required oninput="fetchInitiatorBalance()">
+          </div>
+
+          <!-- Hidden Fields -->
+          <input type="hidden" name="oldbalanceorg" id="oldbalanceorg">
+          <input type="hidden" name="newbalanceorig" id="newbalanceorig">
+          <input type="hidden" name="oldbalancedest" id="oldbalancedest">
+          <input type="hidden" name="newbalancedest" id="newbalancedest">
+
+          <div class="md:col-span-2 mt-4">
+            <button type="submit" class="bg-blue-900 text-white w-full py-2 rounded-md hover:bg-blue-800 text-sm">
+              Submit
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-white shadow-inner">
+  <div class="max-w-5xl mx-auto py-2 text-center text-[10px] text-gray-500">
+    &copy; 2025 BentJun Mobile Money Platform Inc. All rights reserved.
+  </div>
+</footer>
+
+<!-- JavaScript Section at the bottom (after HTML loaded) -->
+<script>
+// Set Date and Time
+setInterval(() => {
+  document.getElementById('currentDateTime').textContent = new Date().toLocaleString();
+}, 1000);
+
+// Fetch Initiator Balance
+async function fetchInitiatorBalance() {
+  const initiatorPhoneInput = document.getElementById('initiatorphoneno');
+  const balanceDisplay = document.getElementById('balanceAmount');
+  const phoneNumber = initiatorPhoneInput.value.trim();
+
+  if (!phoneNumber) {
+    balanceDisplay.innerText = 'Balance: GHS 0.00';
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://127.0.0.1:8000/validate-initiator/${phoneNumber}`);
+    const data = await response.json();
+
+    if (data.success) {
+      const balance = parseFloat(data.balance).toFixed(2);
+      balanceDisplay.innerText = `Balance: GHS ${balance}`;
+      document.getElementById('oldbalanceorg').value = balance;
+      document.getElementById('newbalanceorig').value = balance;
+    } else {
+      balanceDisplay.innerText = 'Balance: GHS 0.00';
+      alert('Initiator not found.');
+    }
+  } catch (error) {
+    console.error('Error fetching initiator balance:', error);
+    balanceDisplay.innerText = 'Balance: GHS 0.00';
+    alert('Failed to fetch initiator balance.');
+  }
+}
+
+// Validate Beneficiary
+async function validateBeneficiaryPhone() {
+  const phoneInput = document.getElementById('beneficiaryphoneno');
+  const nameField = document.getElementById('beneficiaryname');
+  const phoneNumber = phoneInput.value.trim();
+
+  if (!phoneNumber) {
+    nameField.value = '';
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://127.0.0.1:8000/validate-beneficiary/${phoneNumber}`);
+    const data = await response.json();
+
+    if (data.success) {
+      nameField.value = data.full_name;
+    } else {
+      nameField.value = 'Account Not Found';
+      alert('Account Not Found.');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    nameField.value = 'Account Not Found';
+    alert('Server Error. Please try again.');
+  }
+}
+
+// Submit Transaction
+async function submitTransaction(event) {
+  event.preventDefault();
+
+  const form = event.target;
+  const amount = parseFloat(form.amount.value);
+  const oldbalancerg = parseFloat(form.oldbalanceorg.value) || 0;
+  const oldbalancedest = parseFloat(form.oldbalancedest.value) || 0;
+  const newbalanceorig = oldbalanceorg - amount;
+  const newbalancedest = oldbalancedest + amount;
+
+  document.getElementById('newbalanceorig').value = newbalanceorig;
+  document.getElementById('newbalancedest').value = newbalancedest;
+
+  const transactionData = {
+    trxdate: new Date().toISOString(),
+    type: form.type.value,
+    amount: amount,
+    nameorig: form.initiatorphone.value,
+    oldbalanceorg: oldbalanceorg,
+    newbalanceorig: newbalanceorig,
+    namedest: form.namedest.value,
+    beneficiaryname: form.beneficiaryname.value,
+    oldbalanceDest: oldbalanceDest,
+    newbalanceDest: newbalanceDest,
+    mobilenetwork: form.mobilenetwork.value
+  };
+
+  try {
+    const response = await fetch('http://127.0.0.1:8000/transactions/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(transactionData)
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      document.getElementById('balanceAmount').innerText = `Balance: GHS ${data.newbalanceorig.toFixed(2)}`;
+      alert('Transaction successful!');
+    } else {
+      alert('Transaction failed');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error processing transaction');
+  }
+}
+</script>
+
+</body>
+</html>
